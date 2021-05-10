@@ -16,14 +16,17 @@ export default class App extends Component {
                 {label: 'Going to learn React', important: true, like: false, id: 1},
                 {label: 'That is so good', important: false, like: false, id: 2},
                 {label: 'I need a break...', important: false, like: false, id: 3},
-                {label: 'Live without regrets', important: false, like: false, id: 4},
-                {label: 'All we need in love', important: false, like: false, id: 5},
-            ]
+                {label: 'Русский текст', important: false, like: false, id: 4},
+                {label: 'Тест фильтра для usera', important: false, like: false, id: 5}
+            ],
+            term: ''
         };
+
         this.deleteItem = this.deleteItem.bind(this);
         this.addItem = this.addItem.bind(this);
         this.onToggleImportant = this.onToggleImportant.bind(this);
         this.onToggleLiked = this.onToggleLiked.bind(this);
+        this.onUpdateSearch = this.onUpdateSearch.bind(this);
 
         this.maxId = 6;
     }
@@ -77,11 +80,27 @@ export default class App extends Component {
         this.changeSetState(id, 'like');
     }
 
+    searchPost(items, term) {
+        if (term.length === 0) {
+            return items
+        }
+
+        return items.filter((item) => {
+            return item.label.indexOf(term) > -1 // все посты, которые содержат то, что ввёл пользователь
+        });
+    }
+
+    onUpdateSearch(term) {
+        this.setState({term})
+    }
+
     render() {
-        const {data} = this.state;
+        const {data, term} = this.state;
 
         const liked = data.filter(item => item.like).length;
         const allPosts = data.length;
+
+        const visiblePosts = this.searchPost(data, term);
 
         return (
             <div className="app">
@@ -89,11 +108,12 @@ export default class App extends Component {
                 liked={liked}
                 allPosts={allPosts}/>
                 <div className="search-panel d-flex">
-                    <SearchPanel/>
+                    <SearchPanel
+                        onUpdateSearch={this.onUpdateSearch} />
                     <PostStatusFilter/>
                 </div>
                 <PostList 
-                    posts={this.state.data}
+                    posts={visiblePosts} // не берём все данные, а только те, которые хотим отобразить (this.state.data)
                     onDelete={this.deleteItem}
                     onToggleImportant={this.onToggleImportant}
                     onToggleLiked={this.onToggleLiked}/>
